@@ -1,0 +1,25 @@
+{
+  "name": "provenfood_bot",
+  "version": "1.0.0",
+  "main": "main.ts",
+  "scripts": {
+    "start:dev": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "allowImportingTsExtensions": true,
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google/genai": "^1.39.0",
+    "dotenv": "^17.2.3",
+    "init": "^0.1.2",
+    "telegraf": "^4.16.3"
+  }
+}
