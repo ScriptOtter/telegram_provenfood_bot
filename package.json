@@ -11,15 +11,21 @@
   "type": "commonjs",
   "allowImportingTsExtensions": true,
   "devDependencies": {
-    "@types/node": "^25.1.0",
+    "@prisma/client": "^7.3.0",
+    "@types/node": "^25.2.0",
+    "@types/pg": "^8.16.0",
     "nodemon": "^3.1.11",
+    "prisma": "^7.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@google/genai": "^1.39.0",
+    "@prisma/adapter-pg": "^7.3.0",
     "dotenv": "^17.2.3",
     "init": "^0.1.2",
+    "module-alias": "^2.3.4",
+    "pg": "^8.18.0",
     "telegraf": "^4.16.3"
   }
 }

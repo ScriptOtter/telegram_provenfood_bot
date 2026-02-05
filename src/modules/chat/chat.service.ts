@@ -1,4 +1,4 @@
-import { chatCompletion } from "../../infrastructure/gemini/openai.client";
+import { chatCompletion } from "../../infrastructure/gemini/gemini.client";
 import { IGenerateRecipe, recipeSchema } from "./chat.types";
 
 export async function askGenerateRecipe(

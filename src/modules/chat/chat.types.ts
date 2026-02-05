@@ -5,14 +5,14 @@ interface Ingredients {
 }
 
 export interface IGenerateRecipe {
-  name: string;
+  title: string;
   ingredients: Ingredients[];
   reciept: string[];
 }
 
 export const recipeSchema = `
 interface IGenerateRecipe {
-  name: string;
+  title: string;
   ingredients[]: {
     name: string;
     weight: number;

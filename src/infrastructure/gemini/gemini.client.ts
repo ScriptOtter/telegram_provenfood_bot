@@ -1,8 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import * as dotenv from "dotenv";
 import { IGenerateRecipe } from "../../modules/chat/chat.types";
 import { ENV } from "../../config/env";
-dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: ENV.GEMINI_API_KEY });
 

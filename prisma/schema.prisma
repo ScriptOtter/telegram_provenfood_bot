@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  telegramId    String   @unique  @id
+  username      String?
+  firstName     String?
+  lastName      String?
+
+  groups        FoodGroup[] @relation()
+  skipProducts  SkipProducts[] @relation()
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime  @default(now())
+}
+
+model SkipProducts {
+  id          String   @id @default(cuid())
+  products    String
+  user        User     @relation(fields: [userId], references: [telegramId])
+  userId      String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FoodGroup {
+  id          String  @unique @id @default(cuid())
+  name        String
+
+  owner       User     @relation(fields: [ownerId], references: [telegramId])
+  ownerId     String
+
+  recipes     Recipe[] @relation()
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ingredients {
+  id          String   @id @default(cuid())
+  name        String
+  weight      Float?
+  unit        String?
+
+  recipe      Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId    String
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  ingredients Ingredients[]
+  instructions String[]
+  rating      Float?
+
+  group       FoodGroup? @relation(fields: [groupId], references: [id])
+  groupId     String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
