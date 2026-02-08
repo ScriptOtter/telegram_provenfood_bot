@@ -1,68 +1,77 @@
 import type { Telegraf } from "telegraf";
-import { deleteIds, resetStates, states } from "../states";
+
 import { askGenerateRecipe } from "../../modules/chat/chat.service";
 import { IGenerateRecipe } from "../../modules/chat/chat.types";
 import { convertUnit } from "../../shared/utils/unit-converter";
+import { TelegrafContext } from "../../shared/interfaces/telegraf-context.interface";
+import { deleteMessages } from "../handlers/delete-messages.handler";
 import { recipeRepository } from "../../modules/recipe/recipe.repository";
-import { keyboardSaveRecipe } from "../handlers/keyboards";
 
-export function textEvent(bot: Telegraf) {
+export function textEvent(bot: Telegraf<TelegrafContext>) {
   bot.on("text", async (ctx) => {
     let text = ctx.text;
-    if (states.generate_recipe) {
-      ctx.reply(`Генерация рецепта из: ${text}`).then(({ message_id }) => {
-        deleteIds.push(message_id);
-      });
-
+    if (ctx.session.state === "geneate_recipe") {
       ctx
-        .reply("Пожалуйста, подождите, идет генерация рецепта...")
+        .reply(`Пожалуйста, подождите, идет генерация рецепта из ${text} ... `)
         .then(async ({ message_id }) => {
-          const recipe: IGenerateRecipe | null = await askGenerateRecipe(text);
+          const generatedRecipe: IGenerateRecipe | null =
+            await askGenerateRecipe(text);
 
-          deleteIds.push(message_id);
-          if (!recipe) {
+          ctx.session.deleteMessages.push(message_id);
+          if (!generatedRecipe) {
             ctx.reply(
               "Произошла ошибка при генерации рецепта. Пожалуйста, попробуйте еще раз.",
             );
-            resetStates(states);
+            ctx.session.state = null;
             return;
           }
-          await recipeRepository.createRecipe({
+          const recipe = {
             userId: String(ctx.from.id),
-            title: recipe.title || "Без названия",
-            ingredients: { createMany: { data: recipe.ingredients } },
-            instructions: recipe.reciept || [],
-          });
+            title: generatedRecipe.title || "Без названия",
+            ingredients: generatedRecipe.ingredients.map((ingredient) =>
+              JSON.stringify(ingredient),
+            ),
+            instructions: generatedRecipe.reciept || [],
+          };
+          ctx.session.lastRecipe = JSON.stringify(recipe);
 
           ctx.reply(
-            `*Введение продукты:* ${text}\n\n*${recipe.title}*\n\n*Ингредиенты:*\n${recipe.ingredients
+            `*Введение продукты:* ${text}\n\n*${recipe.title}*\n\n*Ингредиенты:*\n${generatedRecipe.ingredients
               .map(
                 ({ name, unit, weight }) =>
                   `${name.trim()}: ${weight}${convertUnit(unit).trim()}`,
               )
               .join(
                 "\n",
-              )}\n\n*Рецепт:*\n${recipe.reciept.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
+              )}\n\n*Рецепт:*\n${generatedRecipe.reciept.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
             {
               parse_mode: "Markdown",
               reply_markup: {
                 inline_keyboard: [
                   [{ text: "Сохранить", callback_data: "save_recipe" }],
+                  [
+                    {
+                      text: "Сгенерировать еще раз",
+                      callback_data: "generate_recipe",
+                    },
+                  ],
                 ],
               },
             },
           );
         });
-      ctx.deleteMessages(deleteIds);
-      resetStates(states);
-      states.awaiting_click = true;
+      deleteMessages(ctx);
+      ctx.session.state = "confirm_recipe";
+    }
+    if (ctx.session.state === "create_food_group") {
+      if (!text) {
+        ctx.answerCbQuery("Пожалуйста, введите название группы.");
+        return;
+      }
+      const data = { name: text.trim(), ownerId: String(ctx.from.id) };
+      recipeRepository.createFoodGroup(data);
+      ctx.answerCbQuery(`Группа ${text} создана!`);
+      ctx.session.state = null;
     }
   });
-}
-
-function escapeMarkdownV2(text) {
-  if (!text) return "";
-  return String(text)
-    .replace(/([_*[\]()~`>#+\-=|{}.!])/g, "\\$1")
-    .replace(/-/g, "\\-");
 }

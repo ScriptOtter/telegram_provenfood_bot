@@ -36,7 +36,6 @@ class RecipeRepository {
   public async createRecipe(
     data: RecipeCreateInput,
   ): Promise<RecipeModel | null> {
-    console.log(data);
     try {
       return await prismaService.recipe.create({ data });
     } catch (e) {
@@ -61,7 +60,7 @@ class RecipeRepository {
   ): Promise<FoodGroupModel | null> {
     try {
       return await prismaService.foodGroup.findFirst({
-        where: { owner: { telegramId } },
+        where: { ownerId: telegramId },
       });
     } catch (e) {
       console.error("=== RecipeRepository, findFoodGroupByTelegramId ===");
@@ -74,7 +73,7 @@ class RecipeRepository {
   ): Promise<FoodGroupModel[] | null> {
     try {
       return await prismaService.foodGroup.findMany({
-        where: { owner: { telegramId } },
+        where: { ownerId: telegramId },
       });
     } catch (e) {
       console.error("=== RecipeRepository, getMyFoodGroups ===");
@@ -92,7 +91,7 @@ class RecipeRepository {
       if (!ownerGroup) return false;
       await prismaService.foodGroup.update({
         where: { id: foodGroupId },
-        data: { recipes: { connect: { id: recipeId } } },
+        data: { recipe: { connect: { id: recipeId } } },
       });
       return true;
     } catch (e) {
@@ -111,7 +110,7 @@ class RecipeRepository {
       if (!ownerGroup) return false;
       await prismaService.foodGroup.update({
         where: { id: foodGroupId },
-        data: { recipes: { disconnect: { id: recipeId } } },
+        data: { recipe: { disconnect: { id: recipeId } } },
       });
       return true;
     } catch (e) {
