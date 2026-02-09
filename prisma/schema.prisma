@@ -33,6 +33,8 @@ model FoodGroup {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+
+  @@unique([name, ownerId])
 }
 
 model Recipe {

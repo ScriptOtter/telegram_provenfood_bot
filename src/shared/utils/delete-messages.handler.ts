@@ -1,4 +1,4 @@
-import { TelegrafContext } from "../../shared/interfaces/telegraf-context.interface";
+import { TelegrafContext } from "../interfaces/telegraf-context.interface";
 
 export async function deleteMessages(ctx: TelegrafContext) {
   ctx.deleteMessages(ctx.session.deleteMessages);

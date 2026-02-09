@@ -6,9 +6,11 @@ import {
 } from "./generate-recipes.handler";
 import { TelegrafContext } from "../../../shared/interfaces/telegraf-context.interface";
 import { currentSessionHandler } from "./current-session";
-import { getFoodGroup } from "./get-recipes.handler";
+import { getFoodGroup, saveRecipeInGroup } from "./get-recipes.handler";
+import { mainMenuHandler } from "./main-menu.handler";
 
 export async function initCallbackHandlers(bot: Telegraf<TelegrafContext>) {
+  saveRecipeInGroup(bot);
   bot.on("callback_query", async (ctx) => {
     if (!("data" in ctx.callbackQuery)) {
       console.log(
@@ -20,6 +22,9 @@ export async function initCallbackHandlers(bot: Telegraf<TelegrafContext>) {
     const callbackData = ctx.callbackQuery.data;
 
     switch (callbackData) {
+      case "menu":
+        await mainMenuHandler(ctx);
+        break;
       case "generate_recipe":
         await generateRecipeHandler(ctx);
         break;
@@ -36,7 +41,7 @@ export async function initCallbackHandlers(bot: Telegraf<TelegrafContext>) {
         await currentSessionHandler(ctx);
         break;
       default:
-        await ctx.answerCbQuery("Неизвестный запрос.");
+        await ctx.answerCbQuery("", { show_alert: false });
     }
   });
 }

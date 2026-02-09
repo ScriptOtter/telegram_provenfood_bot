@@ -19,7 +19,7 @@ export async function chatCompletion(
 
     return JSON.parse(data);
   } catch (e) {
-    console.log(e);
+    console.log("=== chatCompletion error ===", e);
     return null;
   }
 }
