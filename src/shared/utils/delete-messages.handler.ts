@@ -1,6 +1,8 @@
 import { TelegrafContext } from "../interfaces/telegraf-context.interface";
 
 export async function deleteMessages(ctx: TelegrafContext) {
-  ctx.deleteMessages(ctx.session.deleteMessages);
-  ctx.session.deleteMessages = [];
+  if (ctx.session.deleteMessages.length > 0) {
+    ctx.deleteMessages(ctx.session.deleteMessages);
+    ctx.session.deleteMessages = [];
+  }
 }

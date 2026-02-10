@@ -14,7 +14,6 @@ model User {
   lastName     String?
   
   foodGroup    FoodGroup[]
-  skipProducts SkipProducts[]
 
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now())
@@ -53,14 +52,5 @@ model Recipe {
   updatedAt    DateTime   @default(now())
 }
 
-model SkipProducts {
-  id        String   @id
-  products  String
-  
-  user      User     @relation(fields: [userId], references: [telegramId])
-  userId    String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-}
 

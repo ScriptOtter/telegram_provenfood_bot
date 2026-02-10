@@ -2,7 +2,6 @@ import { askGenerateRecipe } from "../../../modules/chat/chat.service";
 import { IGenerateRecipe } from "../../../modules/chat/chat.types";
 import { TelegrafContext } from "../../../shared/interfaces/telegraf-context.interface";
 import { convertUnit } from "../../../shared/utils/unit-converter";
-import { deleteMessages } from "../../../shared/utils/delete-messages.handler";
 
 export async function generateRecipeEvent(
   ctx: TelegrafContext,
@@ -19,7 +18,7 @@ export async function generateRecipeEvent(
       ctx.session.deleteMessages.push(message_id);
 
       if (!generatedRecipe) {
-        await ctx
+        return ctx
           .reply(
             "Произошла ошибка при генерации рецепта. Пожалуйста, попробуйте еще раз.",
             {
@@ -48,7 +47,6 @@ export async function generateRecipeEvent(
           .then((message) =>
             ctx.session.deleteMessages.push(message.message_id),
           );
-        return;
       }
       const recipe = {
         userId: telegramId,
@@ -60,7 +58,7 @@ export async function generateRecipeEvent(
       };
       ctx.session.lastRecipe = JSON.stringify(recipe);
 
-      await ctx.reply(
+      ctx.reply(
         `*Введение продукты:* ${text}\n\n*${recipe.title}*\n\n*Ингредиенты:*\n${generatedRecipe.ingredients
           .map(
             ({ name, unit, weight }) =>
@@ -85,7 +83,6 @@ export async function generateRecipeEvent(
         },
       );
 
-      await deleteMessages(ctx);
       ctx.session.state = "confirm_recipe";
       ctx.session.products = "";
     });

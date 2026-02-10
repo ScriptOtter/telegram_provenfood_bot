@@ -7,15 +7,14 @@ export async function initTextEvents(bot: Telegraf<TelegrafContext>) {
   bot.on("text", async (ctx) => {
     const state = ctx.session.state;
     const telegramId = String(ctx.from.id);
-    const text = ctx.message.text;
+    const text = await ctx.message.text;
 
     ctx.session.deleteMessages.push(ctx.message.message_id);
     const valid = validateTextEvents(state, telegramId, text);
     if (!valid) {
-      await ctx
+      return await ctx
         .reply("Некорректные данные\nПропишите /start")
         .then((message) => ctx.session.deleteMessages.push(message.message_id));
-      return;
     }
 
     switch (state) {
@@ -26,7 +25,7 @@ export async function initTextEvents(bot: Telegraf<TelegrafContext>) {
         await createFoodGroupEvent(ctx, telegramId, text);
         break;
       default:
-        await ctx.reply("Неизвестный запрос.");
+        ctx.reply("Неизвестный запрос.");
     }
   });
 }

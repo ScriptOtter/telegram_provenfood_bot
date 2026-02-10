@@ -6,11 +6,16 @@ import {
 } from "./generate-recipes.handler";
 import { TelegrafContext } from "../../../shared/interfaces/telegraf-context.interface";
 import { currentSessionHandler } from "./current-session";
-import { getFoodGroup, saveRecipeInGroup } from "./get-recipes.handler";
+import {
+  getFoodGroup,
+  pickFoodGroupAction,
+  pickRecipeFromFoodGroupAction,
+} from "./get-recipes.handler";
 import { mainMenuHandler } from "./main-menu.handler";
 
 export async function initCallbackHandlers(bot: Telegraf<TelegrafContext>) {
-  saveRecipeInGroup(bot);
+  pickFoodGroupAction(bot);
+  pickRecipeFromFoodGroupAction(bot);
   bot.on("callback_query", async (ctx) => {
     if (!("data" in ctx.callbackQuery)) {
       console.log(

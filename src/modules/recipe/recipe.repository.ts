@@ -24,15 +24,29 @@ class RecipeRepository {
     }
   }
 
-  public async findRecipeById(id: string): Promise<RecipeModel | null> {
+  public async findRecipesFromFoodGroup(
+    telegramId: string,
+    groupId: string,
+  ): Promise<RecipeModel[] | null> {
     try {
-      return await prismaService.recipe.findUnique({ where: { id } });
+      return await prismaService.recipe.findMany({
+        where: { userId: telegramId, groupId },
+      });
     } catch (e) {
-      console.error("=== RecipeRepository, findRecipeById ===");
+      console.error("=== RecipeRepository, findRecipeFromGroup ===");
       return null;
     }
   }
-
+  public async findRecipeById(id: string): Promise<RecipeModel | null> {
+    try {
+      return await prismaService.recipe.findUnique({
+        where: { id },
+      });
+    } catch (e) {
+      console.error("=== RecipeRepository, findRecipeById ===", e);
+      return null;
+    }
+  }
   public async createRecipe(
     data: RecipeCreateInput,
   ): Promise<RecipeModel | null> {
@@ -55,13 +69,14 @@ class RecipeRepository {
     }
   }
 
-  public async findFoodGroupByTelegramId(
+  public async findFoodGroupsByTelegramId(
     telegramId: string,
-  ): Promise<FoodGroupModel | null> {
+  ): Promise<FoodGroupModel[] | null> {
     try {
-      return await prismaService.foodGroup.findFirst({
+      const data = await prismaService.foodGroup.findMany({
         where: { ownerId: telegramId },
       });
+      return data.length === 0 ? null : data;
     } catch (e) {
       console.error("=== RecipeRepository, findFoodGroupByTelegramId ===");
       return null;
@@ -136,6 +151,19 @@ class RecipeRepository {
     } catch (e) {
       console.error("=== RecipeRepository, updateRecipeInFoodGroup ===");
       return false;
+    }
+  }
+  public async getFoodGroupNameById(
+    foodGroupId: string,
+  ): Promise<string | null> {
+    try {
+      const foodGroup = await prismaService.foodGroup.findUnique({
+        where: { id: foodGroupId },
+      });
+      return foodGroup?.name || null;
+    } catch (e) {
+      console.error("=== RecipeRepository, getFoodGroupNameById ===");
+      return null;
     }
   }
 }
